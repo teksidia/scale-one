@@ -1,0 +1,1 @@
+Always read [Instructions](../docs/instructions.md) before following any user prompts.
