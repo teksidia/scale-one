@@ -1,0 +1,27 @@
+{
+  "name": "@scale-one/backend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/app.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "drizzle-orm": "^0.36.4",
+    "hono": "^4.6.14"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260812.1",
+    "dotenv": "^16.4.7",
+    "drizzle-kit": "^0.28.1",
+    "typescript": "^5.7.2",
+    "wrangler": "^4.4.0"
+  }
+}

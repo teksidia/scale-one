@@ -1,23 +1,53 @@
-# About
+# Technology Consultant Referral Network
 
-A basic starter template to use for structured development of applications using Agentic AI.
+An open-source, self-hostable referral network for independent technology consultants and boutique agencies — post leads, express interest, and track referrals through a clear lifecycle, without platform fees or a central authority.
 
-Follows my SaSSE (Semi-automated Senior Software Engineer) workflow.
+See [Vision](./docs/vision.md) for the problem/solution and [Architecture](./docs/architecture.md) for the stack, data model, and system constraints.
 
-Designed to follow many development cycles and use guardrails and baby steps to allow careful, accurate, iterative development.
+## Stack
 
-For information about development 'cycles' see [Cycles ReadMe](./docs/cycles/README.md)
+| Layer | Choice |
+| --- | --- |
+| Frontend | React (Vite) — `frontend/` |
+| Backend | Hono (TypeScript) — `backend/`, deployable to Cloudflare Workers or Docker/Node/Bun |
+| Database | Neon (Serverless Postgres) via Drizzle ORM |
+| API | Hono RPC (`hc`) — typed client, no separate schema sync |
 
-## Usage
+## Repo Structure
 
-This is a template repository. Use it to start your own Agentic AI adventure.
+```
+/frontend   React SPA
+/backend    Hono API, Drizzle schema/migrations
+/docs
+ ├── vision.md         Product "why"
+ ├── architecture.md   Technical "how" — stack, data model, API pattern
+ └── cycles/           Development sprints (requirements + specs per feature)
+```
 
-https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template#creating-a-repository-from-a-template
+A pnpm workspace (`pnpm-workspace.yaml`); `frontend` and `backend` are separate packages.
 
-## Note
+## Getting Started
 
-This was created as a result of much experimentation trying to wrangle GitHub Copilot CLI to generate applications that get close to professional quality (almost).
+Requires Node, pnpm, and a Neon Postgres database.
 
-It is valid as of April 2026 but will probably be out-of-date by the time you read!
+```sh
+pnpm install
 
-The world of Agentic AI is moving fast...
+# backend — set DATABASE_URL
+cp backend/.dev.vars.example backend/.dev.vars
+pnpm db:migrate
+
+# frontend — set VITE_API_URL
+cp frontend/.env.example frontend/.env
+```
+
+Run the dev servers:
+
+```sh
+pnpm dev:backend    # http://localhost:8787
+pnpm dev:frontend   # http://localhost:5173
+```
+
+## Development Workflow
+
+Built following a SaSSE (Semi-automated Senior Software Engineer) workflow: structured development in cycles, with guardrails for careful, iterative, AI-assisted development. See [Instructions](./docs/instructions.md) and the [Cycles README](./docs/cycles/README.md).

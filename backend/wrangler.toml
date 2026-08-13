@@ -1,0 +1,12 @@
+name = "scale-one-backend"
+main = "src/index.ts"
+compatibility_date = "2026-08-12"
+compatibility_flags = ["nodejs_compat"]
+account_id = "0984ae3f01b5b32b3994c1724104b0db"
+
+[observability]
+enabled = true
+
+# DATABASE_URL is a secret, not a var: `wrangler secret put DATABASE_URL`
+# for the deployed Worker, or a .dev.vars file (see .dev.vars.example) for
+# `wrangler dev` locally.

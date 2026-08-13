@@ -36,7 +36,7 @@ Before writing any code, read [`architecture.md`](./architecture.md) to understa
 
 ## MCP Servers
 
-- **Playwright** (`@playwright/mcp`) — configured in [`.mcp.json`](../.mcp.json). Use it to navigate the app, interact with UI elements, take screenshots, and run end-to-end flows directly from Copilot Chat.
+- **Playwright** (`@playwright/mcp`) — configured in [`.mcp.json`](../.mcp.json). Use it to navigate the app, interact with UI elements, take screenshots, and run end-to-end flows directly from agentic chat.
 
 ## Key Conventions
 
