@@ -1,1 +1,6 @@
 DATABASE_URL=postgresql://<user>:<password>@<host>/<dbname>?sslmode=require
+
+# Only needed locally: allows the separate Vite dev server to call this
+# Worker cross-origin. Unset in production, where this Worker serves the
+# built frontend itself (same origin, no CORS needed — see 00e).
+FRONTEND_URL=http://localhost:5173

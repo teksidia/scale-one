@@ -25,7 +25,7 @@ export function AcceptInvitePage({ token }: AcceptInvitePageProps) {
 
     setSubmitting(true);
     try {
-      const res = await client.auth["accept-invite"].$post({
+      const res = await client.api.auth["accept-invite"].$post({
         json: { token: token ?? "", password },
       });
 

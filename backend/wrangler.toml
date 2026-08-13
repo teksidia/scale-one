@@ -11,11 +11,15 @@ enabled = true
 # for the deployed Worker, or a .dev.vars file (see .dev.vars.example) for
 # `wrangler dev` locally.
 
-[vars]
-# Origin the API's CORS policy allows to send credentialed requests
-# (Set-Cookie session cookie). Override per-environment at deploy time
-# (00e); this default targets the local Vite dev server.
-FRONTEND_URL = "http://localhost:5173"
+# This Worker serves the built frontend directly (single origin, no
+# separate Cloudflare Pages project — see 00e) so a cross-site cookie
+# problem never arises between the SPA and the API. API routes are
+# scoped to /api/* (app.ts) so they never collide with the asset handler's
+# SPA fallback for the frontend's own client-side routes.
+[assets]
+directory = "../frontend/dist"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
 
 # One-time setup per 00b's Prerequisites: `wrangler kv namespace create
 # RATE_LIMIT`, then replace the id below with the one it prints. Works

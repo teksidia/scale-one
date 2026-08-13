@@ -44,8 +44,10 @@ None new. Uses `User`, `Invite`, `Session`, `Lead` as defined in
 No new routes. All four auth routes
 ([00b](../00b-accept-invite/specification.md#api-contract),
 [00c](../00c-login-session-guard-logout/specification.md#api-contract))
-and `/leads` ([00d](../00d-leads-list/specification.md#api-contract)) are
-exercised as-is against the deployed instance.
+and `/api/leads` ([00d](../00d-leads-list/specification.md#api-contract)) are
+exercised as-is against the deployed instance. All API routes were moved
+under `/api/*` as part of this ticket — see [report.md](./report.md) and
+[architecture.md → API Pattern](../../../architecture.md#api-pattern).
 
 ## Component / UI Behaviour
 No new pages. `AcceptInvitePage`, `LoginPage`, and `LeadsPage`
@@ -74,14 +76,17 @@ exercised as-is via the deployed frontend URL.
 
 ## Acceptance Criteria
 
-- [ ] The full app (Hono API + React SPA) deploys to Cloudflare
-      Pages/Workers without manual post-deploy fixes.
-- [ ] The full walkthrough (accept invite → land on `/leads` → logout →
+- [x] The full app (Hono API + React SPA) deploys to Cloudflare
+      Pages/Workers without manual post-deploy fixes. (True for the deploy
+      step itself — `pnpm deploy` is one command. Getting the *app* to that
+      state took three production-only bug fixes first; see
+      [post-implementation-notes.md](./post-implementation-notes.md).)
+- [x] The full walkthrough (accept invite → land on `/leads` → logout →
       login again → land on `/leads`) succeeds against the
       Cloudflare-deployed instance over HTTPS.
-- [ ] The session cookie set by the deployed instance carries `HttpOnly`,
+- [x] The session cookie set by the deployed instance carries `HttpOnly`,
       `Secure`, and `SameSite=Lax`.
-- [ ] 11 consecutive failed `POST /auth/login` attempts against the
+- [x] 11 consecutive failed `POST /api/auth/login` attempts against the
       deployed instance return `429` on the 11th, confirming the Workers
       KV rate-limit binding works in production (not just local dev).
 

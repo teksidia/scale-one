@@ -80,9 +80,16 @@ export const auth = new Hono<{ Bindings: Bindings; Variables: Variables }>()
       .returning();
 
     const newSession = await createSession(db, newUser.id);
+    const csrfToken = generateCsrfToken();
 
     setCookie(c, SESSION_COOKIE_NAME, newSession.id, {
       httpOnly: true,
+      secure: true,
+      sameSite: "Lax",
+      path: "/",
+    });
+    setCookie(c, CSRF_COOKIE_NAME, csrfToken, {
+      httpOnly: false,
       secure: true,
       sameSite: "Lax",
       path: "/",

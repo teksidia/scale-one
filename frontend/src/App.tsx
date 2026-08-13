@@ -23,7 +23,7 @@ function App() {
     // handled by the same guardedFetch redirect every other API call uses
     // (see lib/api.ts) — this effect only needs to know when it's safe to
     // render, not to perform the redirect itself.
-    client.auth.me.$get().finally(() => {
+    client.api.auth.me.$get().finally(() => {
       if (!cancelled) setSessionChecked(true);
     });
 

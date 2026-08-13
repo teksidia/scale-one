@@ -15,12 +15,12 @@ Builds on the Neon/Cloudflare accounts from
   `wrangler kv namespace create RATE_LIMIT`, with the returned namespace ID
   bound in `wrangler.toml`. One-time setup against the same Cloudflare
   account from 00a; reused as-is by [00c](../00c-login-session-guard-logout/specification.md#business-rules--constraints)
-  for `/auth/login`'s rate limiting.
+  for `/api/auth/login`'s rate limiting.
 
 ## Overview
 Implements the invite-consumption half of the spike's walkthrough: a valid
 invite token becomes a `User` row, a hashed password, and an active
-`Session`, over `POST /auth/accept-invite`, plus the `AcceptInvitePage` that
+`Session`, over `POST /api/auth/accept-invite`, plus the `AcceptInvitePage` that
 drives it. Builds on the `User`/`Invite`/`Session` schema from
 [00a](../00a-scaffolding-and-schema/specification.md#data-models) — this
 ticket does not redefine those shapes.
@@ -32,7 +32,7 @@ No new fields.
 
 ## API Contract
 
-### `POST /auth/accept-invite`
+### `POST /api/auth/accept-invite`
 - **Purpose**: consumes an invite token, sets the user's password, creates
   the `User` row, and logs them in.
 - **Body**: `{ token: string, password: string }`
@@ -48,7 +48,7 @@ No new fields.
 ## Component / UI Behaviour
 
 - **`AcceptInvitePage`** (`/accept-invite/:token`): password +
-  confirm-password form. On submit, `POST /auth/accept-invite`; on success
+  confirm-password form. On submit, `POST /api/auth/accept-invite`; on success
   redirect to `/leads` (route not built until [00d](../00d-leads-list/specification.md) —
   redirect target exists but resolves to nothing until then; acceptable for
   this ticket's scope); on `400` show the generic inline error returned by
@@ -64,7 +64,7 @@ Binding per [architecture.md → Session Handling Requirements](../../../archite
 - **Password hashing**: argon2id via a WASM-based library (no native Node
   bindings — must run on Workers), salted per user. See
   [Open Questions](#open-questions) for the PBKDF2 fallback.
-- **Rate limiting**: `/auth/accept-invite` limited to 10 attempts per IP per
+- **Rate limiting**: `/api/auth/accept-invite` limited to 10 attempts per IP per
   5 minutes, via a Workers KV counter with a short TTL — a valid use of KV
   because rate-limit counters tolerate eventual consistency (unlike
   sessions).
@@ -89,16 +89,16 @@ Binding per [architecture.md → Session Handling Requirements](../../../archite
 
 ## Acceptance Criteria
 
-- [ ] `POST /auth/accept-invite` with a valid, unused, unexpired token
+- [ ] `POST /api/auth/accept-invite` with a valid, unused, unexpired token
       creates a `User` row with an argon2id-hashed (or PBKDF2, per the
       Open Questions fallback) password and a `Session` row, and the
       response sets a cookie matching the flags above.
-- [ ] `POST /auth/accept-invite` with an expired, already-accepted, or
+- [ ] `POST /api/auth/accept-invite` with an expired, already-accepted, or
       nonexistent token all return `400` with the identical error message
       string.
-- [ ] `POST /auth/accept-invite` with a password under 8 characters
+- [ ] `POST /api/auth/accept-invite` with a password under 8 characters
       returns `400`.
-- [ ] 11 consecutive failed `POST /auth/accept-invite` attempts from the
+- [ ] 11 consecutive failed `POST /api/auth/accept-invite` attempts from the
       same IP within 5 minutes return `429` on the 11th, with a
       `Retry-After` header.
 - [ ] A stored `User` row's `passwordHash` is never plaintext or reversibly
@@ -106,9 +106,9 @@ Binding per [architecture.md → Session Handling Requirements](../../../archite
 
 ## Out of Scope
 
-- `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`, `LoginPage`,
+- `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, `LoginPage`,
   route guard — [00c](../00c-login-session-guard-logout/specification.md).
-- `GET /leads`, `LeadsPage` — [00d](../00d-leads-list/specification.md).
+- `GET /api/leads`, `LeadsPage` — [00d](../00d-leads-list/specification.md).
 - Production deploy, secrets, and the deployed walkthrough — [00e](../00e-cloudflare-deploy-and-walkthrough/specification.md).
 - CSRF protection on this route — it's unauthenticated (no existing session
   to forge); rate limiting is the relevant control here instead, per
@@ -139,3 +139,4 @@ Binding per [architecture.md → Session Handling Requirements](../../../archite
 | --- | --- |
 | 12 August 2026 | First draft, split out of 00-skeleton-spike |
 | 12 August 2026 | Added Prerequisites section (Workers KV namespace) |
+| 13 August 2026 | Amended in place per [00e](../00e-cloudflare-deploy-and-walkthrough/specification.md): all API paths now under `/api/*` (`/api/auth/accept-invite`), required once 00e made the SPA and API share one origin — see [architecture.md → Deployment](../../../architecture.md#deployment) |

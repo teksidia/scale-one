@@ -14,7 +14,7 @@ export function LoginPage() {
     setError(null);
     setSubmitting(true);
     try {
-      const res = await client.auth.login.$post({ json: { email, password } });
+      const res = await client.api.auth.login.$post({ json: { email, password } });
 
       if (res.status === 429) {
         setError(RATE_LIMIT_MESSAGE);

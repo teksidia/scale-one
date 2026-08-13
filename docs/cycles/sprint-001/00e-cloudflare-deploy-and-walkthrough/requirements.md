@@ -21,15 +21,17 @@ the deployed instance over HTTPS — the spike's actual purpose.
   again → land on `/leads` — succeeds against the deployed instance.
 
 ## Acceptance Criteria
-- [ ] The full app (Hono API + React SPA) deploys to Cloudflare
-      Pages/Workers.
-- [ ] The full walkthrough (accept invite → land on `/leads` → logout →
+- [x] The full app (Hono API + React SPA) deploys to Cloudflare
+      Pages/Workers. (One Worker, not split Pages/Workers — see
+      [specification.md](./specification.md) and
+      [post-implementation-notes.md](./post-implementation-notes.md).)
+- [x] The full walkthrough (accept invite → land on `/leads` → logout →
       login again → land on `/leads`) succeeds against the
       Cloudflare-deployed instance over HTTPS.
-- [ ] Performing the walkthrough against the deployed URL confirms the
+- [x] Performing the walkthrough against the deployed URL confirms the
       session cookie carries `HttpOnly`, `Secure`, and `SameSite=Lax` in
       the deployed environment.
-- [ ] Rate limiting (10 attempts / 5 min) is confirmed working against the
+- [x] Rate limiting (10 attempts / 5 min) is confirmed working against the
       deployed instance's Workers KV binding, not just a local mock.
 
 ## Out of Scope

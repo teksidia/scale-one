@@ -41,7 +41,7 @@ function readCookie(name: string): string | null {
 // architecture.md's Session Handling Requirements) — read back from the
 // non-HttpOnly csrf_token cookie and echoed as a header.
 export function logout() {
-  return client.auth.logout.$post(
+  return client.api.auth.logout.$post(
     {},
     { headers: { "X-CSRF-Token": readCookie("csrf_token") ?? "" } },
   );

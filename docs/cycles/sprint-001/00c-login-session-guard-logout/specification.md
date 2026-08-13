@@ -10,7 +10,7 @@
 No new accounts or provisioning beyond
 [00a](../00a-scaffolding-and-schema/specification.md#prerequisites) (Neon +
 Cloudflare) and [00b](../00b-accept-invite/specification.md#prerequisites)
-(Workers KV namespace, reused here for `/auth/login`'s rate limiting).
+(Workers KV namespace, reused here for `/api/auth/login`'s rate limiting).
 
 ## Overview
 Implements the login, session-check, and logout legs of the spike's
@@ -27,7 +27,7 @@ No new fields.
 
 ## API Contract
 
-### `POST /auth/login`
+### `POST /api/auth/login`
 - **Purpose**: authenticates an existing user.
 - **Body**: `{ email: string, password: string }`
 - **Response**: `200 { user: { id, email } }`, `Set-Cookie: session=<id>; ...` (new session, see rotation rule below)
@@ -36,7 +36,7 @@ No new fields.
     (`"Invalid email or password"`) for both — anti-enumeration.
   - `429` — rate limit exceeded.
 
-### `POST /auth/logout`
+### `POST /api/auth/logout`
 - **Purpose**: invalidates the current session.
 - **Auth**: session cookie required; a request with no/invalid cookie
   still returns `204` (idempotent — logging out an already-logged-out
@@ -49,7 +49,7 @@ No new fields.
   spike, and it establishes the pattern every future authenticated
   mutation must follow.
 
-### `GET /auth/me`
+### `GET /api/auth/me`
 - **Purpose**: lets the frontend determine on load whether a session is
   active, without guessing from a failed protected call.
 - **Response**: `200 { user: { id, email } }` if session valid, else `401`.
@@ -59,13 +59,13 @@ No new fields.
 ## Component / UI Behaviour
 
 - **`LoginPage`** (`/login`): email + password form. On submit,
-  `POST /auth/login`; on success redirect to `/leads` (route not built
+  `POST /api/auth/login`; on success redirect to `/leads` (route not built
   until [00d](../00d-leads-list/specification.md) — acceptable for this
   ticket's scope); on `401` show generic inline error.
-- **Route guard** (`App.tsx`): on app load, calls `GET /auth/me` once to
+- **Route guard** (`App.tsx`): on app load, calls `GET /api/auth/me` once to
   determine session state before rendering any protected route (prevents a
   flash of protected content that then gets yanked). Any `401` from any
-  subsequent API call (not just `/auth/me`) redirects to `/login` — the
+  subsequent API call (not just `/api/auth/me`) redirects to `/login` — the
   guard doesn't re-check on every navigation, it reacts to the API telling
   it the session died.
 
@@ -85,8 +85,8 @@ Binding per [architecture.md → Session Handling Requirements](../../../archite
 - **Cookie**: name `session`, `HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/`.
 - **CSRF**: a random CSRF token is issued (readable, non-`HttpOnly` cookie
   or response body — implementation's choice) at login time and must be
-  echoed back as `X-CSRF-Token` on `/auth/logout`.
-- **Rate limiting**: `/auth/login` limited to 10 attempts per IP per 5
+  echoed back as `X-CSRF-Token` on `/api/auth/logout`.
+- **Rate limiting**: `/api/auth/login` limited to 10 attempts per IP per 5
   minutes, via the same Workers KV counter pattern as
   [00b's accept-invite rate limiting](../00b-accept-invite/specification.md#business-rules--constraints).
 - **Account enumeration**: always the generic message, same shape for
@@ -100,32 +100,32 @@ Binding per [architecture.md → Session Handling Requirements](../../../archite
   never invited → same generic `401`.
 - Session past its idle or absolute timeout → treated identically to no
   session: `401`, frontend redirects to `/login`.
-- Rate limit exceeded on `/auth/login` → `429` with a `Retry-After` header;
+- Rate limit exceeded on `/api/auth/login` → `429` with a `Retry-After` header;
   frontend shows a generic "too many attempts, try again later" message.
-- `/auth/logout` called with no session cookie, or with a cookie whose
+- `/api/auth/logout` called with no session cookie, or with a cookie whose
   session was already deleted → `204`, not an error.
 
 ## Acceptance Criteria
 
-- [ ] `POST /auth/login` with correct credentials returns `200` and a
+- [ ] `POST /api/auth/login` with correct credentials returns `200` and a
       **new** `Session` row distinct from any prior session for that user.
-- [ ] `POST /auth/login` with a wrong password and with an unregistered
+- [ ] `POST /api/auth/login` with a wrong password and with an unregistered
       email both return `401` with the identical error message string.
-- [ ] `GET /auth/me` returns `401` with no cookie, and `200 { user }` with
+- [ ] `GET /api/auth/me` returns `401` with no cookie, and `200 { user }` with
       a valid one; a successful call updates `Session.lastSeenAt`.
-- [ ] `POST /auth/logout` without a valid `X-CSRF-Token` is rejected; with
-      it, the `Session` row is deleted and a subsequent `GET /auth/me`
+- [ ] `POST /api/auth/logout` without a valid `X-CSRF-Token` is rejected; with
+      it, the `Session` row is deleted and a subsequent `GET /api/auth/me`
       returns `401`.
-- [ ] 11 consecutive failed `POST /auth/login` attempts from the same IP
+- [ ] 11 consecutive failed `POST /api/auth/login` attempts from the same IP
       within 5 minutes return `429` on the 11th.
 - [ ] Given a user logs in twice, the session ID issued on the second
       login differs from the first (rotation on login).
 
 ## Out of Scope
 
-- `POST /auth/accept-invite`, `AcceptInvitePage` — already built in
+- `POST /api/auth/accept-invite`, `AcceptInvitePage` — already built in
   [00b](../00b-accept-invite/specification.md).
-- `GET /leads`, `LeadsPage` — [00d](../00d-leads-list/specification.md).
+- `GET /api/leads`, `LeadsPage` — [00d](../00d-leads-list/specification.md).
 - Production deploy, secrets, and the deployed walkthrough — [00e](../00e-cloudflare-deploy-and-walkthrough/specification.md).
 - Password reset / forgot-password flow.
 - Mirrors [00-skeleton-spike/specification.md → Out of Scope](../00-skeleton-spike/specification.md#out-of-scope).
@@ -136,8 +136,8 @@ Binding per [architecture.md → Session Handling Requirements](../../../archite
   before any real feature relies on them.
 
 ## Notes
-- This ticket intentionally includes `POST /auth/logout` and
-  `GET /auth/me`, which aren't named in `00-skeleton-spike/requirements.md`'s
+- This ticket intentionally includes `POST /api/auth/logout` and
+  `GET /api/auth/me`, which aren't named in `00-skeleton-spike/requirements.md`'s
   Requirements list — both are the minimum needed to make login/session-
   guard behaviour actually testable and usable from a real SPA, not scope
   creep beyond the spike's intent (see
@@ -152,3 +152,4 @@ Binding per [architecture.md → Session Handling Requirements](../../../archite
 | --- | --- |
 | 12 August 2026 | First draft, split out of 00-skeleton-spike |
 | 12 August 2026 | Added Prerequisites section (pointer to 00a/00b — no new accounts) |
+| 13 August 2026 | Amended in place per [00e](../00e-cloudflare-deploy-and-walkthrough/specification.md): all API paths now under `/api/*` (`/api/auth/login`, `/logout`, `/me`), required once 00e made the SPA and API share one origin — see [architecture.md → Deployment](../../../architecture.md#deployment) |

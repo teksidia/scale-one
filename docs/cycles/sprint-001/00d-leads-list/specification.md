@@ -26,7 +26,7 @@ No new fields.
 
 ## API Contract
 
-### `GET /leads`
+### `GET /api/leads`
 - **Purpose**: returns the seeded leads list.
 - **Auth**: session cookie required.
 - **Response**: `200 { items: Lead[] }`
@@ -34,8 +34,8 @@ No new fields.
 
 ## Component / UI Behaviour
 
-- **`LeadsPage`** (`/leads`, protected): on mount, calls `leads.$get()` via
-  `hc`. Loading state while pending. Renders a plain list of `title` +
+- **`LeadsPage`** (`/leads`, protected): on mount, calls `api.leads.$get()`
+  via `hc`. Loading state while pending. Renders a plain list of `title` +
   `status`. Empty state: "No leads yet" if `items` is empty.
 - Protected by the route guard built in
   [00c](../00c-login-session-guard-logout/specification.md#component--ui-behaviour) —
@@ -49,14 +49,14 @@ No new fields.
 
 ## Edge Cases
 
-- No `Lead` rows seeded → `GET /leads` returns `{ items: [] }`; UI shows
+- No `Lead` rows seeded → `GET /api/leads` returns `{ items: [] }`; UI shows
   the empty state, not an error.
-- No/expired session calling `GET /leads` → `401`, frontend's route guard
+- No/expired session calling `GET /api/leads` → `401`, frontend's route guard
   (built in 00c) redirects to `/login`.
 
 ## Acceptance Criteria
 
-- [ ] `GET /leads` returns `401` with no session, and `200 { items: Lead[] }`
+- [ ] `GET /api/leads` returns `401` with no session, and `200 { items: Lead[] }`
       with a valid one, typed end-to-end through `hc` with no manual
       casting in the frontend.
 - [ ] Given an authenticated session and at least one seeded `Lead` row,
@@ -68,7 +68,7 @@ No new fields.
 
 ## Out of Scope
 
-- Accept-invite, login, logout, `/auth/me`, route guard — already built in
+- Accept-invite, login, logout, `/api/auth/me`, route guard — already built in
   [00b](../00b-accept-invite/specification.md) and
   [00c](../00c-login-session-guard-logout/specification.md).
 - Full lead lifecycle, referral points, availability — later sprint
@@ -94,3 +94,4 @@ No new fields.
 | --- | --- |
 | 12 August 2026 | First draft, split out of 00-skeleton-spike |
 | 12 August 2026 | Added Prerequisites section (pointer to 00a — no new accounts) |
+| 13 August 2026 | Amended in place per [00e](../00e-cloudflare-deploy-and-walkthrough/specification.md): API path is now `GET /api/leads` (was `GET /leads`), required once 00e made the SPA and API share one origin and the frontend's own `/leads` page route would otherwise collide with the API path — see [architecture.md → API Pattern](../../../architecture.md#api-pattern) |

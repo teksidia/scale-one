@@ -88,6 +88,7 @@ Open ──(interest expressed)──▶ Interest ──(poster picks one)──
 
 - Backend exposes a Hono app; frontend consumes it through the generated `hc` RPC client for end-to-end type safety — no separate OpenAPI/schema sync step.
 - Resource-oriented routes grouped by entity: `/users`, `/leads`, `/leads/:id/interest`, `/invites`, etc. Exact contracts belong in per-feature `specification.md` files, not here.
+- **All API routes are mounted under `/api/*`** (`/api/auth/login`, `/api/leads`, etc.) — required because production serves the API and the SPA from the same origin (see [Deployment](#deployment)), and without a prefix an API path can collide with a same-named frontend page route (e.g. the SPA's `/leads` page vs. the API's `GET /leads`). Confirmed in [00e](./cycles/sprint-001/00e-cloudflare-deploy-and-walkthrough/specification.md).
 - API base URL is environment-configured on the frontend (`VITE_API_URL`), never hardcoded — see [Key Conventions](./instructions.md#key-conventions).
 
 ## Best Practices
@@ -140,9 +141,10 @@ These are binding for every feature that touches auth, not just the initial spik
 
 ## Deployment
 
-- **Primary path**: Cloudflare Pages/Workers free tier — frictionless, zero-maintenance for community maintainers self-hosting a pool.
+- **Primary path**: a single Cloudflare Worker, free tier — frictionless, zero-maintenance for community maintainers self-hosting a pool. No custom domain required.
 - **Secondary path**: standardized Dockerfile for Node/Bun on a VPS, for maintainers who don't want Cloudflare.
 - Both paths hit the same Neon Postgres instance; no deployment-specific data model branching.
+- **Single origin, not split Pages + Workers.** 00a originally deployed the frontend to a separate Cloudflare Pages project and the API to a Worker. 00e replaced that with one Worker serving both: the built SPA via [Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/) (`[assets]` in `wrangler.toml`, SPA fallback via `not_found_handling`) and the API via Hono, with `run_worker_first = ["/api/*"]` routing only API paths to the Worker script. This was a deliberate correction, not a preference: `pages.dev` and `workers.dev` are different registrable "sites" per the cookie spec (both are on the public suffix list), so a split deployment made the session cookie's required `SameSite=Lax` ([Session Handling Requirements](#session-handling-requirements)) unsendable on the SPA's own API calls — a production-only failure invisible in local dev, where both sides are `localhost` and therefore same-site. Same-origin avoids the problem entirely without loosening the cookie policy or requiring a custom domain.
 
 ## GDPR / Deletion
 
@@ -168,3 +170,4 @@ Carried from [Vision → Open Questions](./vision.md#open-questions) — these a
 | 11 August 2026 | Confirmed Auth decision (session cookies, Neon-backed store over Workers KV) and added binding session-handling security requirements, per the sprint-001 skeleton spike's Security Requirements; added `Session` entity to Data Model |
 | 13 August 2026 | Added Best Practices section (frontend/backend code organization: layering, cohesion by feature/entity, testability) |
 | 13 August 2026 | Added Testing section, pointing to new `architecture.testing.md` |
+| 13 August 2026 | Deployment: single Worker (Workers Static Assets) serving SPA + API from one origin, replacing split Pages+Workers, to keep `SameSite=Lax` session cookies working cross-site-safe without a custom domain; API Pattern: all routes now mounted under `/api/*` to avoid path collisions with SPA routes on the shared origin (00e) |

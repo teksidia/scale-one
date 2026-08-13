@@ -8,7 +8,12 @@
 
 import { fromBase64Url, toBase64Url } from "./encoding";
 
-const PBKDF2_ITERATIONS = 210_000; // OWASP-recommended minimum for PBKDF2-HMAC-SHA256
+// OWASP recommends 210,000+ for PBKDF2-HMAC-SHA256, but Cloudflare Workers'
+// crypto.subtle rejects any PBKDF2 iteration count above 100,000
+// ("NotSupportedError") on the deployed edge runtime — this only surfaces
+// against production, not under `wrangler dev`'s Node-based polyfill.
+// 100,000 is the platform ceiling, so it's the effective minimum here too.
+const PBKDF2_ITERATIONS = 100_000;
 const SALT_BYTES = 16;
 const DERIVED_KEY_BITS = 256;
 
