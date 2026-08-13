@@ -1,19 +1,51 @@
+import { useEffect, useState } from "react";
+import { ACCEPT_INVITE_PATH, client } from "./lib/api";
 import { AcceptInvitePage } from "./pages/AcceptInvitePage";
-
-// Hand-rolled path match, not a router library — full routing (and the
-// auth guard that goes with it) is added in 00c once LoginPage/LeadsPage
-// exist for it to guard between. This is just enough to reach
-// /accept-invite/:token for this ticket.
-const ACCEPT_INVITE_PATH = /^\/accept-invite\/?([^/]*)$/;
+import { LoginPage } from "./pages/LoginPage";
 
 function App() {
-  const match = window.location.pathname.match(ACCEPT_INVITE_PATH);
+  const pathname = window.location.pathname;
+  const acceptInviteMatch = pathname.match(ACCEPT_INVITE_PATH);
+  const isProtectedRoute = !acceptInviteMatch && pathname !== "/login";
 
-  if (match) {
-    const token = match[1] ? decodeURIComponent(match[1]) : undefined;
+  // Only protected routes need to know session state before rendering —
+  // /login and /accept-invite/:token are reachable while logged out.
+  // Starts true (nothing to check) so those routes never block on it.
+  const [sessionChecked, setSessionChecked] = useState(!isProtectedRoute);
+
+  useEffect(() => {
+    if (!isProtectedRoute) return;
+
+    let cancelled = false;
+    // Determines session state before rendering any protected route, so we
+    // never flash protected content that then gets yanked. A 401 here is
+    // handled by the same guardedFetch redirect every other API call uses
+    // (see lib/api.ts) — this effect only needs to know when it's safe to
+    // render, not to perform the redirect itself.
+    client.auth.me.$get().finally(() => {
+      if (!cancelled) setSessionChecked(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isProtectedRoute]);
+
+  if (acceptInviteMatch) {
+    const token = acceptInviteMatch[1] ? decodeURIComponent(acceptInviteMatch[1]) : undefined;
     return <AcceptInvitePage token={token} />;
   }
 
+  if (pathname === "/login") {
+    return <LoginPage />;
+  }
+
+  if (!sessionChecked) {
+    return null;
+  }
+
+  // No protected pages exist yet (LeadsPage lands in 00d) — an authenticated
+  // session simply renders nothing here for now.
   return null;
 }
 

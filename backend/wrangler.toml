@@ -23,4 +23,4 @@ FRONTEND_URL = "http://localhost:5173"
 # mode regardless of whether the id is a real remote namespace.
 [[kv_namespaces]]
 binding = "RATE_LIMIT"
-id = "REPLACE_WITH_RATE_LIMIT_KV_NAMESPACE_ID"
+id = "1f159e12cb5c4ab381bc255e1ec7a976"

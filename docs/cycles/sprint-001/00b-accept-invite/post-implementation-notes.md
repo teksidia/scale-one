@@ -10,4 +10,4 @@ Frontend (frontend/src/):                                                       
 - lib/api.ts — credentials: "include" default so the session cookie survives the cross-origin request
 
 Verified against the real Neon dev DB + a live wrangler dev/Vite session: happy path, duplicate-token reuse, unknowexpired token, weak password, and the 11th-attegeneric messaging exactly; a browser runconfirmed the cookie flags and the /leads redirect. Test rows and local artifacts were cleaned up afterward.       
-One thing worth your attention: I couldn't create the real Cloudflare KV namespace (no auth in this environment) — wrangler.toml has a placeholder ID with a comment; run `wrangler kv namespace create RATE_LIMIT` and drop the real ID in before deploying.
+One thing worth your attention: I couldn't create the real Cloudflare KV namespace (no auth in this environment) — wrangler.toml has a placeholder ID with a comment; run `wrangler kv namespace create RATE_LIMIT` and drop the real ID into wrangler.toml before deploying.
