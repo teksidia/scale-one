@@ -37,3 +37,11 @@ jobs:
         run: pnpm run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # Single-origin deploy (architecture.md → Deployment): the SPA
+          # and API share one Worker, so the API base is same-origin/
+          # relative, not an absolute URL. Must be set here — frontend/.env
+          # (VITE_API_URL=http://localhost:8787, for local dev against a
+          # separate `wrangler dev` port) is gitignored and never present
+          # in CI, so without this the build embeds `undefined` as the
+          # base URL and the deployed app crashes on load.
+          VITE_API_URL: ""
