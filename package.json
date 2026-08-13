@@ -2,6 +2,7 @@
   "name": "scale-one",
   "private": true,
   "scripts": {
+    "dev": "pnpm --parallel -r run dev",
     "dev:backend": "pnpm --filter @scale-one/backend dev",
     "dev:frontend": "pnpm --filter @scale-one/frontend dev",
     "build:backend": "pnpm --filter @scale-one/backend build",

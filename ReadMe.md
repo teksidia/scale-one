@@ -44,6 +44,9 @@ cp frontend/.env.example frontend/.env
 Run the dev servers:
 
 ```sh
+pnpm dev            # both, in parallel
+
+# or individually
 pnpm dev:backend    # http://localhost:8787
 pnpm dev:frontend   # http://localhost:5173
 ```
