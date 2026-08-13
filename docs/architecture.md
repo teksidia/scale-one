@@ -109,6 +109,13 @@ Standard code organization, not a style guide — formatting/linting rules belon
 - Split presentational from data-fetching components where it's cheap: components that just render props stay dumb and reusable; data-fetching/state lives in a parent or hook. Don't force the split on trivial components.
 - Read `import.meta.env` only at the app boundary (`lib/api.ts`), never scattered through components — consistent with the existing `VITE_API_URL` convention above.
 
+## Testing
+
+Test pyramid, which security requirements need a test and at which
+layer, and the test data/environment strategy are defined separately in
+[`architecture.testing.md`](./architecture.testing.md) — kept out of
+this file to keep the core architecture doc concise.
+
 ## Auth
 
 **Confirmed: HTTP-only session cookies over JWT**, backed by a Neon `Session` table rather than Workers KV. Vision.md left this open; resolved and confirmed during the [skeleton spike](./cycles/sprint-001/00-skeleton-spike/requirements.md#security-requirements):
@@ -160,3 +167,4 @@ Carried from [Vision → Open Questions](./vision.md#open-questions) — these a
 | 11 August 2026 | Initial architecture draft: stack table, system overview, data model, lead lifecycle state machine, API pattern, proposed auth decision, deployment paths, GDPR approach, carried-forward open questions |
 | 11 August 2026 | Confirmed Auth decision (session cookies, Neon-backed store over Workers KV) and added binding session-handling security requirements, per the sprint-001 skeleton spike's Security Requirements; added `Session` entity to Data Model |
 | 13 August 2026 | Added Best Practices section (frontend/backend code organization: layering, cohesion by feature/entity, testability) |
+| 13 August 2026 | Added Testing section, pointing to new `architecture.testing.md` |

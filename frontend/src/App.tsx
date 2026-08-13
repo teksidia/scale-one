@@ -1,18 +1,20 @@
-import { useEffect, useState } from "react";
-import { client } from "./lib/api";
+import { AcceptInvitePage } from "./pages/AcceptInvitePage";
 
-type PingResponse = Awaited<
-  ReturnType<Awaited<ReturnType<typeof client.api.ping.$get>>["json"]>
->;
+// Hand-rolled path match, not a router library — full routing (and the
+// auth guard that goes with it) is added in 00c once LoginPage/LeadsPage
+// exist for it to guard between. This is just enough to reach
+// /accept-invite/:token for this ticket.
+const ACCEPT_INVITE_PATH = /^\/accept-invite\/?([^/]*)$/;
 
 function App() {
-  const [data, setData] = useState<PingResponse | null>(null);
+  const match = window.location.pathname.match(ACCEPT_INVITE_PATH);
 
-  useEffect(() => {
-    client.api.ping.$get().then((res) => res.json()).then(setData);
-  }, []);
+  if (match) {
+    const token = match[1] ? decodeURIComponent(match[1]) : undefined;
+    return <AcceptInvitePage token={token} />;
+  }
 
-  return <pre>{data ? JSON.stringify(data, null, 2) : "Loading..."}</pre>;
+  return null;
 }
 
 export default App;

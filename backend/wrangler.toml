@@ -10,3 +10,17 @@ enabled = true
 # DATABASE_URL is a secret, not a var: `wrangler secret put DATABASE_URL`
 # for the deployed Worker, or a .dev.vars file (see .dev.vars.example) for
 # `wrangler dev` locally.
+
+[vars]
+# Origin the API's CORS policy allows to send credentialed requests
+# (Set-Cookie session cookie). Override per-environment at deploy time
+# (00e); this default targets the local Vite dev server.
+FRONTEND_URL = "http://localhost:5173"
+
+# One-time setup per 00b's Prerequisites: `wrangler kv namespace create
+# RATE_LIMIT`, then replace the id below with the one it prints. Works
+# locally with any id — `wrangler dev` emulates KV in local persistence
+# mode regardless of whether the id is a real remote namespace.
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "REPLACE_WITH_RATE_LIMIT_KV_NAMESPACE_ID"

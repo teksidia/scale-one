@@ -51,6 +51,9 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^5.20260812.1
+        version: 5.20260812.1
       '@types/react':
         specifier: ^18.3.17
         version: 18.3.31
