@@ -48,6 +48,17 @@ pnpm dev:backend    # http://localhost:8787
 pnpm dev:frontend   # http://localhost:5173
 ```
 
+No admin UI exists yet to create accounts, so seed a test login via a raw
+`Invite` insert:
+
+```sh
+pnpm --filter backend run seed:invite [email]   # defaults to test@example.com
+```
+
+Prints an `/accept-invite/:token` URL — visit it on the frontend to set a
+password and log in. Remove this script once an admin UI can create
+invites (see [00b](./docs/cycles/sprint-001/00b-accept-invite/specification.md)).
+
 ## Development Workflow
 
 Built following a SaSSE (Semi-automated Senior Software Engineer) workflow: structured development in cycles, with guardrails for careful, iterative, AI-assisted development. See [Instructions](./docs/instructions.md) and the [Cycles README](./docs/cycles/README.md).

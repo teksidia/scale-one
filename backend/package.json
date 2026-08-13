@@ -10,7 +10,8 @@
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "seed:invite": "node --env-file=.env scripts/seed-invite.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

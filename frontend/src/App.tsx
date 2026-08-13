@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ACCEPT_INVITE_PATH, client } from "./lib/api";
 import { AcceptInvitePage } from "./pages/AcceptInvitePage";
+import { LeadsPage } from "./pages/LeadsPage";
 import { LoginPage } from "./pages/LoginPage";
 
 function App() {
@@ -44,9 +45,7 @@ function App() {
     return null;
   }
 
-  // No protected pages exist yet (LeadsPage lands in 00d) — an authenticated
-  // session simply renders nothing here for now.
-  return null;
+  return <LeadsPage />;
 }
 
 export default App;

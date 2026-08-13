@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { createDb, type Db } from "./db";
 import { auth } from "./routes/auth";
+import { leads } from "./routes/leads";
 
 export type Bindings = {
   DATABASE_URL: string;
@@ -28,7 +29,7 @@ app.use("*", async (c, next) => {
   await next();
 });
 
-const routes = app.route("/auth", auth);
+const routes = app.route("/auth", auth).route("/leads", leads);
 
 export type AppType = typeof routes;
 
